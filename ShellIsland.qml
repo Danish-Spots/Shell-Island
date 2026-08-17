@@ -3,6 +3,8 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
+import "Animations"
+
 PanelWindow {
     id: root
 
@@ -61,13 +63,48 @@ PanelWindow {
 
         y: 8
 
-        width: root.launcherVisible
-            ? root.launcherWidth
-            : root.pillWidth
+        state: root.launcherVisible ? "launcher" : "pill"
 
-        height: root.launcherVisible
-            ? root.launcherHeight
-            : root.pillHeight
+states: [
+    LauncherClosedState {
+        island: island
+        launcherContent: launcherContent
+
+        pillWidth: root.pillWidth
+        pillHeight: root.pillHeight
+    },
+
+    LauncherOpenState {
+        island: island
+        launcherContent: launcherContent
+
+        launcherWidth: root.launcherWidth
+        launcherHeight: root.launcherHeight
+    }
+]
+
+transitions: [
+    LauncherOpenTransition {
+        island: island
+        launcherContent: launcherContent
+    },
+
+    LauncherCloseTransition {
+        island: island
+        launcherContent: launcherContent
+    }
+]
+
+        // width: root.launcherVisible
+        //     ? root.launcherWidth
+        //     : root.pillWidth
+
+        // height: root.launcherVisible
+        //     ? root.launcherHeight
+        //     : root.pillHeight
+
+        width: root.pillWidth
+height: root.pillHeight
 
         radius: appTheme.radiusXl
         color: appTheme.background
@@ -79,87 +116,13 @@ PanelWindow {
             color: appTheme.borderSubtle
         }
 
-states: [
-        State {
-            name: "pill"
-            when: !root.launcherVisible
 
-            PropertyChanges {
-                target: island
-
-                width: root.pillWidth
-                height: root.pillHeight
-            }
-
-            PropertyChanges {
-                target: launcherContent
-
-                opacity: 0
-            }
-        },
-
-        State {
-            name: "launcher"
-            when: root.launcherVisible
-
-            PropertyChanges {
-                target: island
-
-                width: root.launcherWidth
-                height: root.launcherHeight
-            }
-
-            PropertyChanges {
-                target: launcherContent
-
-                opacity: 1
-            }
-        }
-    ]
-Transition {
-    from: "launcher"
-    to: "pill"
-
-    SequentialAnimation {
-        NumberAnimation {
-            target: launcherContent
-            property: "opacity"
-
-            duration: 70
-            easing.type: Easing.OutQuad
-        }
-
-        ParallelAnimation {
-            SpringAnimation {
-                target: island
-                property: "width"
-
-                spring: 3.0
-                damping: 0.42
-                mass: 1.0
-                epsilon: 0.5
-            }
-
-            SpringAnimation {
-                target: island
-                property: "height"
-
-                spring: 3.0
-                damping: 0.40
-                mass: 1.0
-                epsilon: 0.5
-            }
-        }
-    }
-}
-      
 
         Item {
             id: pillContent
 
             anchors.fill: parent
 
-            visible: !root.launcherVisible
 
             SystemClock {
                 id: clock
@@ -183,13 +146,14 @@ Transition {
                 margins: appTheme.spacingLg
             }
 
-            visible: root.launcherVisible
+             opacity: 0
+    visible: opacity > 0
 
-            theme: appTheme
+    theme: appTheme
 
-            onCloseRequested: {
-                root.launcherVisible = false
-            }
+    onCloseRequested: {
+        root.launcherVisible = false
+    }
         }
     }
 }
