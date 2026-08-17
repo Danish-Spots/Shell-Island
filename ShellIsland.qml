@@ -59,9 +59,7 @@ PanelWindow {
 
         anchors.horizontalCenter: parent.horizontalCenter
 
-        y: root.launcherVisible
-            ? (root.height - root.launcherHeight) / 2
-            : 8
+        y: 8
 
         width: root.launcherVisible
             ? root.launcherWidth
@@ -81,26 +79,80 @@ PanelWindow {
             color: appTheme.borderSubtle
         }
 
-        Behavior on width {
-            NumberAnimation {
-                duration: appTheme.motionSlow
-                easing.type: Easing.OutCubic
+states: [
+        State {
+            name: "pill"
+            when: !root.launcherVisible
+
+            PropertyChanges {
+                target: island
+
+                width: root.pillWidth
+                height: root.pillHeight
             }
+
+            PropertyChanges {
+                target: launcherContent
+
+                opacity: 0
+            }
+        },
+
+        State {
+            name: "launcher"
+            when: root.launcherVisible
+
+            PropertyChanges {
+                target: island
+
+                width: root.launcherWidth
+                height: root.launcherHeight
+            }
+
+            PropertyChanges {
+                target: launcherContent
+
+                opacity: 1
+            }
+        }
+    ]
+Transition {
+    from: "launcher"
+    to: "pill"
+
+    SequentialAnimation {
+        NumberAnimation {
+            target: launcherContent
+            property: "opacity"
+
+            duration: 70
+            easing.type: Easing.OutQuad
         }
 
-        Behavior on height {
-            NumberAnimation {
-                duration: appTheme.motionSlow
-                easing.type: Easing.OutCubic
-            }
-        }
+        ParallelAnimation {
+            SpringAnimation {
+                target: island
+                property: "width"
 
-        Behavior on y {
-            NumberAnimation {
-                duration: appTheme.motionSlow
-                easing.type: Easing.OutCubic
+                spring: 3.0
+                damping: 0.42
+                mass: 1.0
+                epsilon: 0.5
+            }
+
+            SpringAnimation {
+                target: island
+                property: "height"
+
+                spring: 3.0
+                damping: 0.40
+                mass: 1.0
+                epsilon: 0.5
             }
         }
+    }
+}
+      
 
         Item {
             id: pillContent

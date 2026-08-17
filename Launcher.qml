@@ -15,6 +15,17 @@ Item {
         search.text = ""
     }
 
+    visible: opacity > 0
+
+    opacity: root.launcherVisible ? 1 : 0
+
+    Behavior on opacity {
+        NumberAnimation {
+            duration: 120
+            easing.type: Easing.OutCubic
+        }
+    }
+
     Column {
         anchors.fill: parent
 
